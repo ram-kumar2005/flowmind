@@ -1,12 +1,25 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, Suspense } from "react";
 import { Send, User, Sparkles, BookOpen, Search } from "lucide-react";
 import { ChatMessage } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { useSearchParams } from "next/navigation";
 
 export default function ChatPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex flex-col h-screen bg-[#F5F0EA] items-center justify-center">
+        <div className="w-12 h-12 border-4 border-[#C4714F]/20 border-t-[#C4714F] rounded-full animate-spin" />
+        <p className="mt-4 text-[#A69E94] font-serif italic">Preparing your second brain...</p>
+      </div>
+    }>
+      <ChatContent />
+    </Suspense>
+  );
+}
+
+function ChatContent() {
   const searchParams = useSearchParams();
   const initialQuery = searchParams.get("q");
   
