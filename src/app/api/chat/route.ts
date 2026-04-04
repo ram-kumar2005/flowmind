@@ -28,7 +28,7 @@ export async function POST(req: Request) {
     const userEmail = session.user.email;
 
     // Find relevant chunks with fallback
-    let relevantChunks: any[] = [];
+    let relevantChunks: string[] = [];
     try {
       relevantChunks = findRelevantChunks(lastMessage, userEmail);
     } catch (err) {
