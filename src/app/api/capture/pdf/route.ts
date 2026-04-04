@@ -1,6 +1,4 @@
 import { NextResponse } from 'next/server';
-// @ts-ignore
-import pdf from 'pdf-parse/dist/pdf-parse/esm/index';
 import { addItem, chunkText } from '@/lib/storage';
 import { generateSummary, generateTags } from '@/lib/groq';
 import { KnowledgeItem } from '@/lib/types';
@@ -16,9 +14,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'File is required' }, { status: 400 });
     }
 
+    // Read file as buffer and extract readable strings (simple fallback for Vercel)
     const buffer = Buffer.from(await file.arrayBuffer());
-    const data = await pdf(buffer);
-    const content = data.text;
+    
+    // Basic text extraction: Filter out non-printable characters 
+    // This is a simple fallback since pdf-parse is incompatible with Vercel serverless
+    const rawText = buffer.toString('utf8');
+    const content = rawText.replace(/[^\x20-\x7E\n\t\r]/g, ' ').replace(/\s+/g, ' ').trim() || 'Extraction failed: No readable text found.';
 
     const summary = await generateSummary(content);
     const tags = await generateTags(content);
