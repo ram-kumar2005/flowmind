@@ -1,9 +1,16 @@
 import { NextResponse } from 'next/server';
 import { readKnowledge } from '@/lib/storage';
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "../auth/[...nextauth]/route";
 
 export async function GET() {
   try {
-    const items = readKnowledge();
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const items = readKnowledge(session.user.email);
     const topics: { [key: string]: string[] } = {};
 
     items.forEach(item => {

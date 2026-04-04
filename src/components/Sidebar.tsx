@@ -12,13 +12,20 @@ import {
   Video, 
   FileCode, 
   Globe, 
-  File
+  File,
+  LogOut
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { BrainLogo } from "./BrainLogo";
+import { useSession, signOut } from "next-auth/react";
+import Image from "next/image";
 
 const Sidebar = () => {
   const pathname = usePathname();
+  const { data: session, status } = useSession();
+
+  // Hide sidebar on login page
+  if (pathname === "/login") return null;
 
   const mainLinks = [
     { name: "Dashboard", href: "/", icon: Home },
@@ -105,14 +112,36 @@ const Sidebar = () => {
         </div>
       </nav>
 
-      <div className="mt-auto pt-6 border-t border-[#E8E2D9]">
-        <div className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-[#E2DCD3] transition-colors cursor-pointer group">
-          <div className="w-9 h-9 rounded-full bg-[#D6CEC3] flex items-center justify-center text-xs font-bold text-[#5C544E]">U</div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-[#2C2420] truncate">User</p>
-            <p className="text-[10px] font-bold text-[#7A9E7E] uppercase tracking-wider">Premium Plan</p>
+      <div className="mt-auto pt-6 border-t border-[#E8E2D9] space-y-4">
+        {session?.user && (
+          <div className="flex items-center gap-3 px-2 py-2">
+            {session.user.image ? (
+              <Image 
+                src={session.user.image} 
+                alt={session.user.name || "User"} 
+                width={36} 
+                height={36} 
+                className="rounded-full border border-[#E8E2D9]"
+              />
+            ) : (
+              <div className="w-9 h-9 rounded-full bg-[#D6CEC3] flex items-center justify-center text-xs font-bold text-[#5C544E]">
+                {session.user.name?.[0] || "U"}
+              </div>
+            )}
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-[#2C2420] truncate">{session.user.name}</p>
+              <p className="text-[10px] font-bold text-[#A69E94] uppercase truncate">{session.user.email}</p>
+            </div>
           </div>
-        </div>
+        )}
+        
+        <button 
+          onClick={() => signOut({ callbackUrl: "/login" })}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[#8C847E] hover:text-red-500 hover:bg-red-50 transition-all group"
+        >
+          <LogOut size={18} className="group-hover:translate-x-0.5 transition-transform" />
+          <span className="font-medium text-sm">Sign Out</span>
+        </button>
       </div>
     </div>
   );

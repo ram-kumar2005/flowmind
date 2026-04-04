@@ -2,39 +2,48 @@ import fs from 'fs';
 import path from 'path';
 import { KnowledgeItem } from './types';
 
-const STORAGE_PATH = path.join(process.cwd(), 'knowledge.json');
+function getStoragePath(email?: string) {
+  if (!email) {
+    return path.join(process.cwd(), 'knowledge.json');
+  }
+  // Sanitize email for filename
+  const safeEmail = email.replace(/[^a-zA-Z0-9]/g, '_');
+  return path.join(process.cwd(), `knowledge_${safeEmail}.json`);
+}
 
-export function readKnowledge(): KnowledgeItem[] {
+export function readKnowledge(email?: string): KnowledgeItem[] {
+  const storagePath = getStoragePath(email);
   try {
-    if (!fs.existsSync(STORAGE_PATH)) {
+    if (!fs.existsSync(storagePath)) {
       return [];
     }
-    const data = fs.readFileSync(STORAGE_PATH, 'utf-8');
+    const data = fs.readFileSync(storagePath, 'utf-8');
     return JSON.parse(data);
   } catch (error) {
-    console.error('Error reading knowledge:', error);
+    console.error(`Error reading knowledge for ${email}:`, error);
     return [];
   }
 }
 
-export function writeKnowledge(items: KnowledgeItem[]) {
+export function writeKnowledge(items: KnowledgeItem[], email?: string) {
+  const storagePath = getStoragePath(email);
   try {
-    fs.writeFileSync(STORAGE_PATH, JSON.stringify(items, null, 2), 'utf-8');
+    fs.writeFileSync(storagePath, JSON.stringify(items, null, 2), 'utf-8');
   } catch (error) {
-    console.error('Error writing knowledge:', error);
+    console.error(`Error writing knowledge for ${email}:`, error);
   }
 }
 
-export function addItem(item: KnowledgeItem) {
-  const items = readKnowledge();
+export function addItem(item: KnowledgeItem, email?: string) {
+  const items = readKnowledge(email);
   items.push(item);
-  writeKnowledge(items);
+  writeKnowledge(items, email);
 }
 
-export function deleteItem(id: string) {
-  const items = readKnowledge();
+export function deleteItem(id: string, email?: string) {
+  const items = readKnowledge(email);
   const filtered = items.filter(item => item.id !== id);
-  writeKnowledge(filtered);
+  writeKnowledge(filtered, email);
 }
 
 export function chunkText(text: string, maxWords: number = 300): string[] {

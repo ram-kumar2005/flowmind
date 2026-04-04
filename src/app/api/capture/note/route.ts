@@ -3,9 +3,16 @@ import { addItem, chunkText } from '@/lib/storage';
 import { generateSummary, generateTags } from '@/lib/groq';
 import { KnowledgeItem } from '@/lib/types';
 import { v4 as uuidv4 } from 'uuid';
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "../../auth/[...nextauth]/route";
 
 export async function POST(req: Request) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { title, content, tags } = await req.json();
 
     if (!content) {
@@ -27,7 +34,7 @@ export async function POST(req: Request) {
       chunks: chunkText(content),
     };
 
-    addItem(newItem);
+    addItem(newItem, session.user.email);
 
     return NextResponse.json(newItem);
   } catch (error) {

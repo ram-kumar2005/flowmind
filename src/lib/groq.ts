@@ -63,8 +63,8 @@ export async function generateTags(content: string): Promise<string[]> {
   }
 }
 
-export function findRelevantChunks(query: string, limit: number = 5): { chunk: string, sourceId: string, title: string }[] {
-  const items = readKnowledge();
+export function findRelevantChunks(query: string, email?: string, limit: number = 5): { chunk: string, sourceId: string, title: string }[] {
+  const items = readKnowledge(email);
   const queryWords = query.toLowerCase().split(/\s+/).filter(w => w.length > 2);
   
   const results: { chunk: string, sourceId: string, title: string, score: number }[] = [];

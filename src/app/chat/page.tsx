@@ -60,12 +60,23 @@ function ChatContent() {
         body: JSON.stringify({ messages: [...messages, userMessage] }),
       });
 
-      if (!response.ok) throw new Error("Failed to send message");
-
-      const reader = response.body?.getReader();
       const assistantMessage: ChatMessage = { role: "assistant", content: "" };
       setMessages(prev => [...prev, assistantMessage]);
 
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        const errorMessage = errorData.error || "Something went wrong, please try again.";
+        setMessages(prev => {
+          const newMessages = [...prev];
+          newMessages[newMessages.length - 1].content = errorMessage;
+          return newMessages;
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      const reader = response.body?.getReader();
+      // Removed redundant assistantMessage declaration
       let fullContent = "";
       let metadataSent = false;
       if (reader) {

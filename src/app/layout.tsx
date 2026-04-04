@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Lora, DM_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import Sidebar from "@/components/Sidebar";
+import AuthProvider from "@/components/AuthProvider";
+import AuthGuard from "@/components/AuthGuard";
 
 const lora = Lora({ 
   subsets: ["latin"], 
@@ -37,10 +39,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${lora.variable} ${dmSans.variable} ${mono.variable} font-sans antialiased bg-[#F5F0EA] text-[#2C2420] flex min-h-screen`}>
-        <Sidebar />
-        <main className="flex-1 overflow-y-auto">
-          {children}
-        </main>
+        <AuthProvider>
+          <AuthGuard>
+            <Sidebar />
+            <main className="flex-1 overflow-y-auto">
+              {children}
+            </main>
+          </AuthGuard>
+        </AuthProvider>
       </body>
     </html>
   );

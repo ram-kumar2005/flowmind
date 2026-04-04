@@ -19,13 +19,20 @@ export default function Dashboard() {
     fetch("/api/knowledge")
       .then(res => res.json())
       .then(data => {
-        setItems(data);
+        const validatedData = Array.isArray(data) ? data : [];
+        setItems(validatedData);
         setLoading(false);
-        if (data.length >= 2) generateDailyInsight(data);
+        if (validatedData.length >= 2) generateDailyInsight(validatedData);
+      })
+      .catch(err => {
+        console.error("Error fetching knowledge:", err);
+        setItems([]);
+        setLoading(false);
       });
   }, []);
 
   const generateDailyInsight = async (knowledgeItems: KnowledgeItem[]) => {
+    if (!Array.isArray(knowledgeItems) || knowledgeItems.length < 2) return;
     const randomItems = [...knowledgeItems].sort(() => 0.5 - Math.random()).slice(0, 2);
     try {
       const res = await fetch("/api/chat", {
@@ -84,13 +91,13 @@ export default function Dashboard() {
   };
 
   const stats = [
-    { label: "Items Saved", value: items.length, icon: FileText, color: "text-[#C4714F]" },
-    { label: "Topics Covered", value: Array.from(new Set(items.flatMap(i => i.tags))).length, icon: Hash, color: "text-[#C4714F]" },
-    { label: "Last Updated", value: items.length > 0 ? formatDate(items[0].date_saved) : "Never", icon: Clock, color: "text-[#7A9E7E]" },
+    { label: "Items Saved", value: Array.isArray(items) ? items.length : 0, icon: FileText, color: "text-[#C4714F]" },
+    { label: "Topics Covered", value: Array.isArray(items) ? Array.from(new Set(items.flatMap(i => i.tags))).length : 0, icon: Hash, color: "text-[#C4714F]" },
+    { label: "Last Updated", value: Array.isArray(items) && items.length > 0 ? formatDate(items[0].date_saved) : "Never", icon: Clock, color: "text-[#7A9E7E]" },
     { label: "Today's Insight", value: insight || "AI Connection", icon: Zap, color: "text-[#C4714F]" },
   ];
 
-  const recentItems = items.slice(0, 6);
+  const recentItems = Array.isArray(items) ? items.slice(0, 6) : [];
 
   const getTypeIcon = (type: string) => {
     switch (type) {
