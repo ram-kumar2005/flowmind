@@ -41,14 +41,14 @@ export default function Dashboard() {
         body: JSON.stringify({ 
           messages: [{ 
             role: "user", 
-            content: `Find a brief connection or insight between these two items: "${randomItems[0].title}" and "${randomItems[1].title}". Return only a 1-sentence interesting observation.` 
+            content: `Find a brief connection or insight between these two items: "${randomItems[0].title}" and "${randomItems[1].title}". Return only a 1-sentence interesting observation. Keep it short and don't include any conversational filler.` 
           }] 
         }),
       });
       if (res.ok) {
         const text = await res.text();
         const cleanedText = text.split("---")[1] || text;
-        setInsight(cleanedText);
+        setInsight(cleanedText.trim());
       }
     } catch (e) { console.error("Insight failed", e); }
   };

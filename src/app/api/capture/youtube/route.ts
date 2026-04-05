@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { YoutubeTranscript } from 'youtube-transcript';
 import { addItem, chunkText } from '@/lib/storage';
-import { generateSummary, generateTags } from '@/lib/groq';
+import { generateSummary, generateTags } from '@/lib/gemini';
 import { KnowledgeItem } from '@/lib/types';
 import { v4 as uuidv4 } from 'uuid';
 import { getServerSession } from "next-auth/next";
