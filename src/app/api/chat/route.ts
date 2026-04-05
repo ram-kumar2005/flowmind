@@ -25,7 +25,7 @@ export async function POST(req: Request) {
     const lastMessage = messages[messages.length - 1].content;
     const userEmail = session.user.email;
 
-    let relevantChunks: string[] = [];
+    let relevantChunks: { chunk: string; sourceId: string; title: string; }[] = [];
     try {
       relevantChunks = findRelevantChunks(lastMessage, userEmail);
     } catch (err) {
